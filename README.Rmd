@@ -68,10 +68,17 @@ system.time({
 file.exists("points_rust.geojson")
 ```
 
-Running that from the system shell resulted in:
+You can also run the code from the system command line:
 
+```bash
+cd src/rust
+cargo test --release
 ```
-cargo test  2.69s user 7.47s system 99% cpu 10.177 total
+
+Verify the time taken to run as follows:
+
+```bash
+time cargo test --release
 ```
 
 Check the output:

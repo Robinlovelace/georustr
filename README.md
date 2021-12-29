@@ -4,6 +4,7 @@
 # georustr
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 This is a minimal R package to test calling Rust code from R.
@@ -38,7 +39,7 @@ system.time({
   points_sf = sf::st_as_sf(points_df, coords = c("x", "y"), crs = 4326)
 })
 #>    user  system elapsed 
-#>   0.029   0.008   0.037
+#>   0.045   0.000   0.045
 ```
 
 We can do the full csv to geojson process for a fair test as follows:
@@ -58,7 +59,7 @@ system.time({
 #> Writing layer `points' to data source `points.geojson' using driver `GeoJSON'
 #> Writing 100000 features with 0 fields and geometry type Point.
 #>    user  system elapsed 
-#>    0.68    0.02    0.70
+#>   0.661   0.020   0.681
 file.exists("points.geojson")
 #> [1] TRUE
 ```
@@ -72,14 +73,23 @@ system.time({
   csv_to_geojson_rust()
 })
 #>    user  system elapsed 
-#>   1.774   9.319  11.102
+#>   0.233   0.036   0.269
 file.exists("points_rust.geojson")
 #> [1] TRUE
 ```
 
-Running that from the system shell resulted in:
+You can also run the code from the system command line:
 
-    cargo test  2.69s user 7.47s system 99% cpu 10.177 total
+``` bash
+cd src/rust
+cargo test --release
+```
+
+Verify the time taken to run as follows:
+
+``` bash
+time cargo test --release
+```
 
 Check the output:
 
@@ -127,6 +137,7 @@ sf::read_sf("points_rust.geojson")
 ```
 
 ``` r
+
 system.time({
   points_georust = georustr::make_points(points_df)
 })
