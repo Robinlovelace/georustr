@@ -3,7 +3,7 @@ use std::fs::File;
 use csv::Reader;
 use extendr_api::prelude::*;
 use geo::{winding_order::Points, Coordinate, Point};
-use geojson::{Feature, GeoJson, Geometry, Value};
+use geojson::{FeatureCollection, Feature, Geometry, Value};
 use serde_json::to_string_pretty;
 
 /// Return string `"Hello world!"` to R.
@@ -22,13 +22,14 @@ pub fn csv_to_geojson() {
         // this will silently discard invalid / unparseable records
         .filter_map(|record| record.ok())
         .map(|record| {
-            Feature::from(Value::from(Point::new(
+            Feature::from(Value::from(Value::Point(vec![
                 record[1].parse::<f64>().unwrap(),
                 record[0].parse::<f64>().unwrap(),
+            ]
             )))
         })
         .collect();
-    let fc: FeatureCollection<_> = FeatureCollection {
+    let fc: FeatureCollection<> = FeatureCollection {
         bbox: None,
         features: points,
         foreign_members: None,
@@ -36,7 +37,7 @@ pub fn csv_to_geojson() {
     let geojson_string = to_string_pretty(&fc).unwrap();
     serde_json::to_writer_pretty(
         &mut File::create("points_rust.geojson").unwrap(),
-        &geojson_string,
+        &fc,
     )
     .unwrap();
 }
