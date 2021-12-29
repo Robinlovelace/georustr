@@ -44,18 +44,28 @@ system.time({
 
 We can do the full csv to geojson process for a fair test as follows:
 
-```{r}
+```{r, eval=FALSE}
+# run once
 readr::write_csv(points_df, "points.csv")
+```
+
+
+```{r}
 if(file.exists("points.geojson")) file.remove("points.geojson")
 system.time({
   csv_to_json_base_r(file_csv = "points.csv")
 })
+file.exists("points.geojson")
 ```
 
 ```{r}
+if(file.exists("points_rust.geojson")) {
+  file.remove("points_rust.geojson")
+}
 system.time({
-  csv_to_geojson()
+  csv_to_geojson_rust()
 })
+file.exists("points_rust.geojson")
 ```
 
 Running that from the system shell resulted in:
@@ -64,7 +74,12 @@ Running that from the system shell resulted in:
 cargo test  2.69s user 7.47s system 99% cpu 10.177 total
 ```
 
+Check the output:
 
+```{r}
+sf::read_sf("points.geojson")
+sf::read_sf("points_rust.geojson")
+```
 
 
 

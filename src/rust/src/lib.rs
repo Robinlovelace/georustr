@@ -15,7 +15,7 @@ fn hello_world() -> &'static str {
 /// Convert `points.csv` to points_rust.geojson.
 /// @export
 #[extendr]
-pub fn csv_to_geojson() {
+pub fn csv_to_geojson_rust() {
     let mut reader = csv::Reader::from_path("points.csv").unwrap();
     let points = reader
         .records()
@@ -23,8 +23,8 @@ pub fn csv_to_geojson() {
         .filter_map(|record| record.ok())
         .map(|record| {
             Feature::from(Value::from(Value::Point(vec![
-                record[1].parse::<f64>().unwrap(),
                 record[0].parse::<f64>().unwrap(),
+                record[1].parse::<f64>().unwrap(),
             ]
             )))
         })
@@ -47,7 +47,7 @@ pub fn csv_to_geojson() {
 extendr_module! {
     mod georustr;
     fn hello_world;
-    fn csv_to_geojson;
+    fn csv_to_geojson_rust;
 }
 
 #[cfg(test)]
@@ -59,6 +59,6 @@ mod tests {
     }
     #[test]
     fn csv_to_geojson_works() {
-        csv_to_geojson();
+        csv_to_geojson_rust();
     }
 }

@@ -38,13 +38,17 @@ system.time({
   points_sf = sf::st_as_sf(points_df, coords = c("x", "y"), crs = 4326)
 })
 #>    user  system elapsed 
-#>   0.034   0.000   0.035
+#>   0.029   0.008   0.037
 ```
 
 We can do the full csv to geojson process for a fair test as follows:
 
 ``` r
+# run once
 readr::write_csv(points_df, "points.csv")
+```
+
+``` r
 if(file.exists("points.geojson")) file.remove("points.geojson")
 #> [1] TRUE
 system.time({
@@ -54,20 +58,73 @@ system.time({
 #> Writing layer `points' to data source `points.geojson' using driver `GeoJSON'
 #> Writing 100000 features with 0 fields and geometry type Point.
 #>    user  system elapsed 
-#>   0.645   0.048   0.693
+#>    0.68    0.02    0.70
+file.exists("points.geojson")
+#> [1] TRUE
 ```
 
 ``` r
+if(file.exists("points_rust.geojson")) {
+  file.remove("points_rust.geojson")
+}
+#> [1] TRUE
 system.time({
-  csv_to_geojson()
+  csv_to_geojson_rust()
 })
 #>    user  system elapsed 
-#>   1.558   9.666  11.245
+#>   1.774   9.319  11.102
+file.exists("points_rust.geojson")
+#> [1] TRUE
 ```
 
 Running that from the system shell resulted in:
 
     cargo test  2.69s user 7.47s system 99% cpu 10.177 total
+
+Check the output:
+
+``` r
+sf::read_sf("points.geojson")
+#> Simple feature collection with 100000 features and 0 fields
+#> Geometry type: POINT
+#> Dimension:     XY
+#> Bounding box:  xmin: -4.426115 ymin: -4.581759 xmax: 4.28053 ymax: 4.358714
+#> Geodetic CRS:  WGS 84
+#> # A tibble: 100,000 × 1
+#>                   geometry
+#>                <POINT [°]>
+#>  1   (-0.183681 0.3248124)
+#>  2    (-2.24645 -0.553099)
+#>  3  (-0.5932318 0.3407814)
+#>  4  (-0.2102984 0.6505756)
+#>  5 (-0.9501803 0.08423856)
+#>  6   (0.1042869 -1.845679)
+#>  7   (-2.037787 -1.900653)
+#>  8   (0.7674608 0.9088685)
+#>  9  (-0.3537348 0.8850982)
+#> 10   (0.1912675 -1.416043)
+#> # … with 99,990 more rows
+sf::read_sf("points_rust.geojson")
+#> Simple feature collection with 100000 features and 0 fields
+#> Geometry type: POINT
+#> Dimension:     XY
+#> Bounding box:  xmin: -4.426115 ymin: -4.581759 xmax: 4.28053 ymax: 4.358714
+#> Geodetic CRS:  WGS 84
+#> # A tibble: 100,000 × 1
+#>                   geometry
+#>                <POINT [°]>
+#>  1   (-0.183681 0.3248124)
+#>  2    (-2.24645 -0.553099)
+#>  3  (-0.5932318 0.3407814)
+#>  4  (-0.2102984 0.6505756)
+#>  5 (-0.9501803 0.08423856)
+#>  6   (0.1042869 -1.845679)
+#>  7   (-2.037787 -1.900653)
+#>  8   (0.7674608 0.9088685)
+#>  9  (-0.3537348 0.8850982)
+#> 10   (0.1912675 -1.416043)
+#> # … with 99,990 more rows
+```
 
 ``` r
 system.time({

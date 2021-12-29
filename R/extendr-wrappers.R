@@ -14,5 +14,5 @@ hello_world <- function() .Call(wrap__hello_world)
 
 #' Convert `points.csv` to points_rust.geojson.
 #' @export
-csv_to_geojson <- function() invisible(.Call(wrap__csv_to_geojson))
+csv_to_geojson_rust <- function() invisible(.Call(wrap__csv_to_geojson_rust))
 
