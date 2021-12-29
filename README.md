@@ -8,6 +8,20 @@
 
 This is a minimal R package to test calling Rust code from R.
 
+Rebuild it with:
+
+``` r
+rextendr::document()
+#> ℹ Generating extendr wrapper functions for package: georustr.
+#> ℹ 'R/extendr-wrappers.R' is up-to-date. Skip generating wrapper functions.
+#> ℹ Updating georustr documentation
+#> ℹ Loading georustr
+#> Warning: [/home/robin/learning/rust/georustr/R/csv_to_geojson.R:9] @examples
+#> requires a value
+#> Writing NAMESPACE
+#> Writing NAMESPACE
+```
+
 Load it with:
 
 ``` r
@@ -24,7 +38,7 @@ system.time({
   points_sf = sf::st_as_sf(points_df, coords = c("x", "y"), crs = 4326)
 })
 #>    user  system elapsed 
-#>   0.045   0.000   0.045
+#>   0.034   0.000   0.035
 ```
 
 We can do the full csv to geojson process for a fair test as follows:
@@ -40,7 +54,7 @@ system.time({
 #> Writing layer `points' to data source `points.geojson' using driver `GeoJSON'
 #> Writing 100000 features with 0 fields and geometry type Point.
 #>    user  system elapsed 
-#>   0.793   0.008   0.815
+#>   0.645   0.048   0.693
 ```
 
 ``` r
@@ -48,7 +62,7 @@ system.time({
   csv_to_geojson()
 })
 #>    user  system elapsed 
-#>   0.862   5.762   6.656
+#>   1.558   9.666  11.245
 ```
 
 Running that from the system shell resulted in:

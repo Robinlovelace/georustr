@@ -18,6 +18,13 @@ knitr::opts_chunk$set(
 
 This is a minimal R package to test calling Rust code from R.
 
+Rebuild it with:
+
+```{r}
+rextendr::document()
+```
+
+
 Load it with:
 
 ```{r}
