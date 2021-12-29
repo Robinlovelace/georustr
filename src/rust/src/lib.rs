@@ -15,7 +15,7 @@ fn hello_world() -> &'static str {
 /// Convert `points.csv` to points_rust.geojson.
 /// @export
 #[extendr]
-fn csv_to_geojson() {
+pub fn csv_to_geojson() {
     // // Test data:
     // let geometry = Geometry::new(Value::Point(vec![-120.66029, 35.2812]));
     // let geojson = GeoJson::Feature(Feature {
@@ -28,7 +28,7 @@ fn csv_to_geojson() {
     // let geojson_string = geojson.to_string();
     // serde_json::to_writer_pretty(&mut File::create("points_rust.geojson").unwrap(), &geojson_string).unwrap();
 
-    let mut points = Vec::new();
+    // let mut points = Vec::new();
     let mut points_geojson = Vec::new();
     let mut reader = csv::Reader::from_path("points.csv").unwrap();
     
@@ -36,14 +36,14 @@ fn csv_to_geojson() {
         let record = result.unwrap();
         let lat = record[0].parse::<f64>().unwrap();
         let lon = record[1].parse::<f64>().unwrap();
-        points.push(Point::new(lon, lat));
+        // points.push(Point::new(lon, lat));
         points_geojson.push(Geometry::new(Value::Point(vec![lon, lat])));
 
     }
     let geojson = points_geojson.into_iter().collect::<GeoJson>();
     // print!("{}", to_string_pretty(&geojson).unwrap());
-    let geojson_string = to_string_pretty(&geojson).unwrap();
-    serde_json::to_writer_pretty(&mut File::create("points_rust.geojson").unwrap(), &geojson_string).unwrap();
+    // let geojson_string = to_string_pretty(&geojson).unwrap();
+    serde_json::to_writer_pretty(&mut File::create("points_rust.geojson").unwrap(), &geojson).unwrap();
     // let geojson = GeoJson::Feature(Feature {
     //     bbox: None,
     //     geometry: Some(Geometry::new(Value::MultiPoint(points_value))),
@@ -64,4 +64,17 @@ extendr_module! {
     mod georustr;
     fn hello_world;
     fn csv_to_geojson;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn it_works() {
+        assert_eq!(hello_world(), "Hello world!");
+    }
+    #[test]
+    fn csv_to_geojson_works() {
+        csv_to_geojson();
+    }
 }

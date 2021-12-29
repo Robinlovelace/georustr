@@ -9,7 +9,6 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-if(file.exists("points.geojson")) file.remove("points.geojson")
 ```
 
 # georustr
@@ -29,7 +28,7 @@ devtools::load_all()
 When it is complete, the following should work:
 
 ```{r}
-n = 1e6
+n = 1e5
 points_df = data.frame(x = rnorm(n = n), y = rnorm(n))
 system.time({
   points_sf = sf::st_as_sf(points_df, coords = c("x", "y"), crs = 4326)
@@ -39,17 +38,26 @@ system.time({
 We can do the full csv to geojson process for a fair test as follows:
 
 ```{r}
-write.csv(points_df, "points.csv")
+readr::write_csv(points_df, "points.csv")
+if(file.exists("points.geojson")) file.remove("points.geojson")
 system.time({
   csv_to_json_base_r(file_csv = "points.csv")
 })
 ```
 
-```{r, eval=FALSE}
+```{r}
 system.time({
   csv_to_geojson()
 })
 ```
+
+Running that from the system shell resulted in:
+
+```
+cargo test  2.69s user 7.47s system 99% cpu 10.177 total
+```
+
+
 
 
 
