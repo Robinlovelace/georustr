@@ -189,6 +189,7 @@ dependencies = [
  "extendr-api",
  "geo",
  "geojson",
+ "serde",
  "serde_json",
 ]
 
