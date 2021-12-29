@@ -21,28 +21,26 @@ pub fn csv_to_geojson_rust() {
     let csv_path = "points.csv";
     let mut reader = csv::Reader::from_path(csv_path).unwrap();
 
-    #[derive(Deserialize)]
-    struct Rustpoint {
-      x: f64,
-      y: f64,
+    // #[derive(Debug, Deserialize)]
+    // struct Rustpoint {
+    //   x: f64,
+    //   y: f64,
+    // }
+
+
+    let mut points = Vec::new();
+    // let mut points_geojson = Vec::new();
+    let mut reader = csv::Reader::from_path("points.csv").unwrap();
+
+  for result in reader.records() {
+        let record = result.unwrap();
+        let lat = record[0].parse::<f64>().unwrap();
+        let lon = record[1].parse::<f64>().unwrap();
+        points.push(Point::new(lon, lat));
+        // points_geojson.push(Geometry::new(Value::Point(vec![lon, lat])));
+
     }
 
-
-
-    for rec in csv::Reader::from_path(csv_path).unwrap().deserialize() {
-        let rustpoint: Rustpoint = rec.unwrap();
-        print!("{}", rustpoint.x);
-        // let point = Point::new(rustpoint.x, rustpoint.y);
-        // let feature = Feature::new(
-        //     Some(Geometry::new(Value::Point(point))),
-        //     None,
-        //     None,
-        // );
-        // let feature_collection = FeatureCollection::new(vec![feature]);
-        // let geojson = to_string_pretty(&feature_collection).unwrap();
-        // let mut file = File::create(geojson_path).unwrap();
-        // file.write_all(geojson.as_bytes()).unwrap();
-    }
 
 
     // let points = reader
