@@ -3,6 +3,9 @@ name = 'georustr'
 version = '0.1.0'
 edition = '2018'
 
+[profile.release]
+lto = “fat”
+
 [lib]
 crate-type = [ 'staticlib' ]
 
