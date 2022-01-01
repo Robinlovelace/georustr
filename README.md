@@ -4,12 +4,47 @@
 # georustr
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
-This is a minimal R package to test calling Rust code from R.
+This repo currently experimental code and a minimal R package to test
+calling Rust code from R.
 
-Rebuild it with:
+The code examples are all documented in this README to keep things
+simple. To reproduce these examples (and to begin hacking R/Rust code!)
+you will need to have installed:
+
+1.  [Install the Rust
+    toolchain](https://www.rust-lang.org/tools/install), e.g. with
+
+``` bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+1.  [Install R](https://cran.r-project.org/)
+2.  [Install the R package
+    `sf`](https://rtask.thinkr.fr/installation-of-r-4-0-on-ubuntu-20-04-lts-and-tips-for-spatial-packages/)
+3.  Install the R package `rextendr`, the development version of which
+    can be installed with the following command:
+
+``` r
+remotes::install_github("extendr/rextendr")
+#> Using github PAT from envvar GITHUB_PAT
+#> Skipping install of 'rextendr' from a github remote, the SHA1 (bb6b9f1f) has not changed since last install.
+#>   Use `force = TRUE` to force installation
+```
+
+After you have installed these things you can clone the repo and open
+the director in an editor of your choice, e.g. with
+
+``` bash
+rstudio georustr/georustr.Rproj # open it in RStudio
+# or...
+code -r georustr/ # open it in VS Code
+code -r georustr/src/rust # open the rust crate in VS Code
+```
+
+Rebuild it from the root directory with the following command from the R
+command line:
 
 ``` r
 rextendr::document()
@@ -17,8 +52,8 @@ rextendr::document()
 #> ℹ 'R/extendr-wrappers.R' is up-to-date. Skip generating wrapper functions.
 #> ℹ Updating georustr documentation
 #> ℹ Loading georustr
-#> Warning: [/home/robin/learning/rust/georustr/R/csv_to_geojson.R:9] @examples
-#> requires a value
+#> Warning: [/mnt/57982e2a-2874-4246-a6fe-115c199bc6bd/orgs/robinlovelace/georustr/
+#> R/csv_to_geojson.R:9] @examples requires a value
 #> Writing NAMESPACE
 #> Writing NAMESPACE
 ```
@@ -30,7 +65,17 @@ devtools::load_all()
 #> ℹ Loading georustr
 ```
 
-When it is complete, the following should work:
+You can download the test data with the following command:
+
+``` r
+u = "https://github.com/Robinlovelace/georustr/releases/download/v0.0.0.9000/points.csv"
+f = basename(u)
+if(!file.exists(f)) {
+  download.file(url = u, destfile = f)
+}
+```
+
+After that the following should work:
 
 ``` r
 n = 1e5
@@ -39,7 +84,7 @@ system.time({
   points_sf = sf::st_as_sf(points_df, coords = c("x", "y"), crs = 4326)
 })
 #>    user  system elapsed 
-#>   0.045   0.000   0.045
+#>   0.037   0.008   0.046
 ```
 
 We can do the full csv to geojson process for a fair test as follows:
@@ -59,7 +104,7 @@ system.time({
 #> Writing layer `points' to data source `points.geojson' using driver `GeoJSON'
 #> Writing 100000 features with 0 fields and geometry type Point.
 #>    user  system elapsed 
-#>   0.661   0.020   0.681
+#>   0.861   0.016   0.880
 file.exists("points.geojson")
 #> [1] TRUE
 ```
@@ -73,10 +118,14 @@ system.time({
   csv_to_geojson_rust()
 })
 #>    user  system elapsed 
-#>   0.233   0.036   0.269
+#>   0.281   0.048   0.330
 file.exists("points_rust.geojson")
 #> [1] TRUE
 ```
+
+The results show that, for this simple test, **Rust is more than 2 times
+faster than equivalent R/GDAL code**. Depending on your application,
+much greater speed-ups should be possible but calling Rust code from R.
 
 You can also run the code from the system command line:
 
@@ -91,54 +140,9 @@ Verify the time taken to run as follows:
 time cargo test --release
 ```
 
-Check the output:
+Check the outputs are the same (they are):
 
 ``` r
 sf::read_sf("points.geojson")
-#> Simple feature collection with 100000 features and 0 fields
-#> Geometry type: POINT
-#> Dimension:     XY
-#> Bounding box:  xmin: -4.426115 ymin: -4.581759 xmax: 4.28053 ymax: 4.358714
-#> Geodetic CRS:  WGS 84
-#> # A tibble: 100,000 × 1
-#>                   geometry
-#>                <POINT [°]>
-#>  1   (-0.183681 0.3248124)
-#>  2    (-2.24645 -0.553099)
-#>  3  (-0.5932318 0.3407814)
-#>  4  (-0.2102984 0.6505756)
-#>  5 (-0.9501803 0.08423856)
-#>  6   (0.1042869 -1.845679)
-#>  7   (-2.037787 -1.900653)
-#>  8   (0.7674608 0.9088685)
-#>  9  (-0.3537348 0.8850982)
-#> 10   (0.1912675 -1.416043)
-#> # … with 99,990 more rows
 sf::read_sf("points_rust.geojson")
-#> Simple feature collection with 100000 features and 0 fields
-#> Geometry type: POINT
-#> Dimension:     XY
-#> Bounding box:  xmin: -4.426115 ymin: -4.581759 xmax: 4.28053 ymax: 4.358714
-#> Geodetic CRS:  WGS 84
-#> # A tibble: 100,000 × 1
-#>                   geometry
-#>                <POINT [°]>
-#>  1   (-0.183681 0.3248124)
-#>  2    (-2.24645 -0.553099)
-#>  3  (-0.5932318 0.3407814)
-#>  4  (-0.2102984 0.6505756)
-#>  5 (-0.9501803 0.08423856)
-#>  6   (0.1042869 -1.845679)
-#>  7   (-2.037787 -1.900653)
-#>  8   (0.7674608 0.9088685)
-#>  9  (-0.3537348 0.8850982)
-#> 10   (0.1912675 -1.416043)
-#> # … with 99,990 more rows
-```
-
-``` r
-
-system.time({
-  points_georust = georustr::make_points(points_df)
-})
 ```

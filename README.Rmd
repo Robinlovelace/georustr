@@ -16,9 +16,32 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-This is a minimal R package to test calling Rust code from R.
+This repo currently experimental code and a minimal R package to test calling Rust code from R.
 
-Rebuild it with:
+The code examples are all documented in this README to keep things simple.
+To reproduce these examples (and to begin hacking R/Rust code!) you will need to have installed:
+
+1. [Install the Rust toolchain](https://www.rust-lang.org/tools/install), e.g. with 
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+2. [Install R](https://cran.r-project.org/)
+3. [Install the R package `sf`](https://rtask.thinkr.fr/installation-of-r-4-0-on-ubuntu-20-04-lts-and-tips-for-spatial-packages/)
+4. Install the R package `rextendr`, the development version of which can be installed with the following command:
+```{r}
+remotes::install_github("extendr/rextendr")
+```
+
+After you have installed these things you can clone the repo and open the director in an editor of your choice, e.g. with
+
+```bash 
+rstudio georustr/georustr.Rproj # open it in RStudio
+# or...
+code -r georustr/ # open it in VS Code
+code -r georustr/src/rust # open the rust crate in VS Code
+```
+
+Rebuild it from the root directory with the following command from the R command line:
 
 ```{r}
 rextendr::document()
@@ -31,8 +54,17 @@ Load it with:
 devtools::load_all()
 ```
 
+You can download the test data with the following command:
 
-When it is complete, the following should work:
+```{r, eval=FALSE}
+u = "https://github.com/Robinlovelace/georustr/releases/download/v0.0.0.9000/points.csv"
+f = basename(u)
+if(!file.exists(f)) {
+  download.file(url = u, destfile = f)
+}
+```
+
+After that the following should work:
 
 ```{r}
 n = 1e5
@@ -68,6 +100,9 @@ system.time({
 file.exists("points_rust.geojson")
 ```
 
+The results show that, for this simple test, **Rust is more than 2 times faster than equivalent R/GDAL code**.
+Depending on your application, much greater speed-ups should be possible but calling Rust code from R.
+
 You can also run the code from the system command line:
 
 ```bash
@@ -81,21 +116,12 @@ Verify the time taken to run as follows:
 time cargo test --release
 ```
 
-Check the output:
+Check the outputs are the same (they are):
 
-```{r}
+```{r, eval=FALSE}
 sf::read_sf("points.geojson")
 sf::read_sf("points_rust.geojson")
 ```
 
 
-
-
-```{r, eval=FALSE}
-
-system.time({
-  points_georust = georustr::make_points(points_df)
-})
-
-```
 
